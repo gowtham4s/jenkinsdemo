@@ -1,5 +1,35 @@
+// main.tf
+// Place inside the `deployment/` folder referenced by the Jenkinsfile.
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.0"
+    }
+  }
+}
+
 provider "aws" {
-  region = "eu-north-1"
+  region = var.aws_region
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-north-1"
+}
+
+variable "build_number" {
+  description = "Jenkins build number (passed from Jenkins)"
+  type        = string
+  default     = "local"
+}
+
+variable "name_prefix" {
+  description = "Prefix to use for the instance Name tag"
+  type        = string
+  default     = "Terraform"
 }
 
 data "aws_vpc" "selected" {
@@ -37,6 +67,11 @@ resource "aws_instance" "example" {
   subnet_id     = tolist(data.aws_subnets.selected.ids)[0]
 
   tags = {
-    Name = "Terraform"
+    Name = "${var.name_prefix}-${var.build_number}"
   }
+}
+
+output "instance_name" {
+  description = "The Name tag of the created instance"
+  value       = aws_instance.example.tags["Name"]
 }
