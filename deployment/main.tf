@@ -37,6 +37,6 @@ resource "aws_instance" "example" {
   subnet_id     = tolist(data.aws_subnets.selected.ids)[0]
 
   tags = {
-    Name = "Terraform"
+    Name = "Terraform - ${BUILD_NUMBER}"
   }
 }
